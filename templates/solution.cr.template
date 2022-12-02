@@ -25,5 +25,4 @@ class Solution
 
 end
 
-solution = Solution.new()
-solution.run()
+Solution.new().run()
