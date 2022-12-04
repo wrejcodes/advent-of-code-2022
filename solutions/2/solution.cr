@@ -44,7 +44,7 @@ class Solution
         end
     end
 
-    def runner
+    def process
         STDIN.each_line do |line|
             # process input
             @rounds.push(line.split(' '))
@@ -69,7 +69,7 @@ class Solution
     end
 
     def run
-        runner()
+        process()
         part1()
         part2()
     end

@@ -6,7 +6,7 @@ class Solution
         @sum2 = 0
     end
 
-    def runner
+    def process
         STDIN.each_line do |line|
             # process input
             @rucksacks.push(line)
@@ -61,7 +61,7 @@ class Solution
     end
 
     def run
-        runner()
+        process()
         part1()
         part2()
     end
