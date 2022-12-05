@@ -32,7 +32,7 @@ class Solution
                 end
             end
         end
-        @stacks.each {|stack| stack.reverse! }
+        @stacks.each(&.reverse!)
     end
 
     def part1
