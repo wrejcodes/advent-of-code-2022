@@ -10,9 +10,9 @@ class Solution
         end
     end
 
-    def eachDifferent(array)
+    def eachDifferent(start, last_pos)
         letters = {} of Char => Bool
-        array.each do |i|
+        (start..last_pos).to_a.each do |i|
             if !letters.has_key?(@signal[i])
                 letters[@signal[i]] = true
             else
@@ -24,14 +24,15 @@ class Solution
 
     def sub_routine(length)
         last_pos = length - 1
-        indexs = (0..last_pos).to_a
         marker = last_pos
+        start = 0
         loop do 
-            if eachDifferent(indexs)
-                marker = indexs[last_pos]
+            if eachDifferent(start, last_pos)
+                marker = last_pos
                 break
             end
-            indexs.map!(&.+ 1)
+            start += 1
+            last_pos += 1
         end
         marker + 1
     end
