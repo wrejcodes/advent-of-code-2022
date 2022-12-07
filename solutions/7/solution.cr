@@ -1,7 +1,7 @@
 class Solution
 
     def initialize
-        @cwd = ""
+        @cwd = Path.new("")
         @dirs = {} of String => Int32
         @sum = 0
     end
@@ -9,10 +9,9 @@ class Solution
     def parse_command(match)
         return if match[1] == "ls"
         if match[2] == ".."
-            @cwd = Path.new(@cwd).parent.to_s
+            @cwd = @cwd.parent
         else
-            next_dir = @cwd.ends_with?("/") || @cwd == "" ? match[2] : "/" + match[2]
-            @cwd += next_dir
+            @cwd /= match[2]
         end
     end
 
@@ -20,11 +19,11 @@ class Solution
         return if line =~ /^dir/
         if match = line.match(/^(\d+) .*/)
             size = match[1]
-            path = ""
-            Path.new(@cwd).each_part do |dir|
-                path += dir == "/" ? dir : "/" + dir
-                @dirs[path] = 0 if !@dirs.has_key?(path)
-                @dirs[path] += size.to_i
+            temp_path = Path.new("")
+            @cwd.each_part do |dir|
+                temp_path /= dir
+                @dirs[temp_path.to_s] = 0 if !@dirs.has_key?(temp_path.to_s)
+                @dirs[temp_path.to_s] += size.to_i
             end
         end
     end
