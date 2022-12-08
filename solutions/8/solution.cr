@@ -28,47 +28,54 @@ class Solution
         tree = @grid[index]
         up, left, right, down = [true, true, true, true]
         up_count, left_count, right_count, down_count = [1,1,1,1]
+
+        #edges 
+        top_edge = 0
+        left_edge = (index / @side_size).to_i * @side_size
+        right_edge = (index / @side_size).to_i * @side_size + @side_size - 1
+        bottom_edge = @side_size * @side_size
+
         # up
         loop do
-            pos = pos - @side_size
+            pos -= @side_size
             if @grid[pos] >= tree
                 up = false
                 break
             end
-            break if pos - @side_size < 0
+            break if pos - @side_size < top_edge
             up_count += 1
         end
         #left
         pos = index
         loop do
-            pos = pos - 1
+            pos -= 1
             if @grid[pos] >= tree
                 left = false
                 break
             end
-            break if pos - 1 < (index / @side_size).to_i * @side_size
+            break if pos - 1 < left_edge
             left_count += 1
         end
         #right
         pos = index
         loop do
-            pos = pos + 1
+            pos += 1
             if @grid[pos] >= tree
                 right = false
                 break
             end
-            break if pos + 1 > (index / @side_size).to_i * @side_size + @side_size - 1
+            break if pos + 1 > right_edge
             right_count += 1
         end
         #down
         pos = index
         loop do
-            pos = pos + @side_size
+            pos += @side_size
             if @grid[pos] >= tree
                 down = false
                 break
             end
-            break if pos + @side_size > @side_size * @side_size
+            break if pos + @side_size > bottom_edge
             down_count += 1
         end
         scenic_score = up_count * left_count * right_count * down_count
