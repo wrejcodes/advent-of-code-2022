@@ -17,10 +17,14 @@ You can create a new solution folder by running the following command in the roo
 
 ```bin/cli new -f <folder_name>```
 
-you can run a solution against the sample input by running the following command in the root directory
+You can run a solution against the sample input by running the following command in the root directory
 
 ```bin/cli run -f <folder_name>```
 
-you can also run a solution against an arbitrary input file in ```solutions/<folder_name>/in/<input_name>.in``` with the following command in the root directory
+You can also run a solution against an arbitrary input file in ```solutions/<folder_name>/in/<input_name>.in``` with the following command in the root directory
 
 ```bin/cli run -f <folder_name> -i <input_name>```
+
+You can also run a solution with debug enabled if the solution has additional debugging output (ex: solution 9)
+
+```bin/cli run -f 9 -i larger -d```
