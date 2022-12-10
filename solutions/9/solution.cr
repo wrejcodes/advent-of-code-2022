@@ -1,9 +1,10 @@
-DEBUG = false
+DEBUG = ENV.has_key?("AOC_DEBUG")
 class Knot
     @touched : Set(Array(Int32))
     getter touched
     getter pos
     getter name
+    getter head
     def initialize(head : Knot, name : String)
         @head = head
         @pos = @head.not_nil!.pos.clone
@@ -33,8 +34,13 @@ class Knot
     end
 
     def move(dir)
-        move_head dir if @head.nil?
-        move_knot unless @head.nil?
+        if @head.nil?
+            move_head dir 
+        else 
+            head = @head.not_nil!
+            head.move(dir)
+            move_knot
+        end
         @touched.add @pos.clone
     end
 
@@ -59,37 +65,88 @@ class Knot
 end
 
 class Solution
-    @touched : Set(Array(Int32))
     def initialize
-        @h_pos = [0,0]
-        @t_pos = [0,0]
-        @touched = Set.new([@t_pos])
         @moves = [] of String
+        @root = nil
+        @min_x = 0
+        @max_x = 0
+        @min_y = 0
+        @max_y = 0
+        @head_pos = [0,0]
+        @padding = 2
     end
 
     def process
         STDIN.each_line do |line|
             # process input
             @moves << line
+            track_min_max_x_y(line) if DEBUG
         end
     end
 
-    def plot(knots)
-        # inefficient way of plotting :)
-        points = Set(Array(Int32)).new()  
-        names = [] of String
-        knots.each do |knot|
-            if !points.includes? knot.pos
-                names << knot.name
+    def track_min_max_x_y(line)
+        dir, steps = line.split(' ')
+        num = steps.to_i
+        case dir
+        when "U"
+            @head_pos[1] += num
+        when "R"
+            @head_pos[0] += num
+        when "L"
+            @head_pos[0] -= num
+        when "D"
+            @head_pos[1] -= num
+        else
+            raise "Invalid Move!"
+        end
+        @max_x = @head_pos[0] if @head_pos[0] > @max_x
+        @max_y = @head_pos[1] if @head_pos[1] > @max_y
+        @min_y = @head_pos[1] if @head_pos[1] < @min_y
+        @min_x = @head_pos[0] if @head_pos[0] < @min_x
+    end
+
+    def plot()
+        points = {} of String => Char
+        start = @root
+        loop do 
+            if start.nil?
+                break
             end
-            points.add knot.pos
+            node = start.not_nil!
+            point = node.pos.map(&.to_s).join(",")
+            points[point] = node.name.chars[0]
+            start = node.head
         end
         lines = [] of String
-        (-5..15).each do |i|
+        y_range = (@min_y - @padding) .. (@max_y + @padding)
+        x_range = (@min_x - @padding) .. (@max_x + @padding)
+        (y_range).each do |i|
             line = [] of Char
-            (-11..14).each do |j|
-                if points.includes? [j, i]
-                    line << names.pop.chars[0]
+            (x_range).each do |j|
+                key = [j, i].map(&.to_s).join(",")
+                if points.has_key? key
+                    line << points[key]
+                else
+                    line << '.'
+                end
+            end
+            lines << line.join()
+        end
+        lines.size.times {STDERR.puts lines.pop}
+    end
+
+    def plot_tail_path()
+        lines = [] of String
+        root = @root.not_nil!
+        y_range = (@min_y - @padding) .. (@max_y + @padding)
+        x_range = (@min_x - @padding) .. (@max_x + @padding)
+        (y_range).each do |i|
+            line = [] of Char
+            (x_range).each do |j|
+                if i == 0 && j == 0
+                    line << 's'
+                elsif root.touched.includes?([j, i])
+                    line << '#'
                 else
                     line << '.'
                 end
@@ -100,16 +157,14 @@ class Solution
     end
 
     def move_knots(knot_size)
-        knots = [] of Knot
-        should_debug = DEBUG && knot.size > 2
+        should_debug = DEBUG && knot_size > 2
         knot_size.times do |i|
-            knot = nil
-            if knots.empty?
-                knot = Knot.new([0, 0], "H")
+            if i == 0
+                @root = Knot.new([0, 0], "H")
             else
-                knot = Knot.new(knots[i - 1], i.to_s)
+                root = @root.not_nil!
+                @root = Knot.new(root, i.to_s)
             end
-            knots << knot
         end
         @moves.each do |move|
             dir, steps = move.split(' ')
@@ -117,16 +172,17 @@ class Solution
             STDERR.puts("======#{dir} #{steps}=======") if should_debug
             steps = steps.to_i
             steps.times do | i |
-                knots.each do |knot|
-                    knot.move(dir)
-                end
+                root = @root.not_nil!
+                root.move(dir)
                 # plot only works for sample and larger input
-                plot(knots) if should_debug
+                plot() if should_debug
                 STDERR.puts "#{dir}:#{i + 1}" if should_debug
                 STDERR.puts "" if should_debug
             end
         end
-        return knots.last.touched.size
+        plot_tail_path() if should_debug
+        root = @root.not_nil!
+        return root.touched.size
     end
 
     def part1
