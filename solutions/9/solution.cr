@@ -154,6 +154,9 @@ class Solution
             lines << line.join()
         end
         lines.size.times {STDERR.puts lines.pop}
+        STDERR.puts "Tail Path"
+        STDERR.puts "Note: extra padding of #{@padding} added to each side of each plot"
+        STDERR.puts ""
     end
 
     def move_knots(knot_size)
@@ -168,16 +171,21 @@ class Solution
         end
         @moves.each do |move|
             dir, steps = move.split(' ')
-            STDERR.puts "" if should_debug
-            STDERR.puts("======#{dir} #{steps}=======") if should_debug
+            if should_debug
+                STDERR.puts ""
+                STDERR.puts("======#{dir} #{steps}=======")
+            end
             steps = steps.to_i
             steps.times do | i |
                 root = @root.not_nil!
                 root.move(dir)
-                # plot only works for sample and larger input
-                plot() if should_debug
-                STDERR.puts "#{dir}:#{i + 1}" if should_debug
-                STDERR.puts "" if should_debug
+                # technically works for test input but I couldn't make
+                # my terminal large enough to truly see the output
+                if should_debug
+                    plot()
+                    STDERR.puts "#{dir}:#{i + 1}"
+                    STDERR.puts ""
+                end
             end
         end
         plot_tail_path() if should_debug
